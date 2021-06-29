@@ -47,7 +47,6 @@ let quizQuestion5 = {
 let headerEl = document.querySelector("#info-header");
 let contentArea = document.querySelector("#content-area");
 let statusBox = document.querySelector("#status-box");
-let startBtn = document.querySelector("#start-button");
 let timerEl = document.querySelector("#timer");
 
 let quizDuration = 120;
@@ -64,10 +63,18 @@ function init(){
     if(loadScores !== null){
         quizHighscores = loadScores;
     }
+    renderLandingPage();
 }
 
 function renderLandingPage(){
-
+    let summPara = document.createElement("p");
+    let startQuizBtn = document.createElement("button");
+    contentArea.textContent = "";
+    summPara.textContent = "Try to answer the questions within the time limit.";
+    startQuizBtn.textContent = "Start Quiz";
+    startQuizBtn.addEventListener("click",startQuiz);
+    contentArea.append(summPara);
+    contentArea.append(startQuizBtn);
 }
 
 function renderInitialsScreen(){
@@ -148,7 +155,7 @@ function loadQuestion(){
     }
 }
 
-function startQuiz(){
+function quizMonitor(){
     quizDuration--;
     timerEl.textContent = `Timer: ${quizDuration} seconds`
     if(quizDuration <= 0 || quizComplete){
@@ -162,12 +169,12 @@ function startQuiz(){
 }
 
 // 1. When the start quiz button is pressed the timer begins
-startBtn.addEventListener("click",function(event){
+function startQuiz(event){
     event.preventDefault();
     loadQuestion();
-    quizTimer = setInterval(startQuiz,1000);
+    quizTimer = setInterval(quizMonitor,1000);
+}
 
-});
 // 4. when the user selects an answer text, should display at the bottom letting them know if they got it right or wrong
     // A button is clicked
     // Check if the selected answer is correct
