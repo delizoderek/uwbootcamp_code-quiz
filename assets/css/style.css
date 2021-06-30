@@ -1,9 +1,12 @@
+/* Contains the  variables that are controlled from javascript*/
 :root{
     --qAlignment: center;
     --startBtn-display: inline;
     --content-width: 50vw;
     --status-border-width: 0px;
 }
+
+/* Styling for the entire page */
 *{
     padding: 0px;
     margin: 0px;
@@ -11,11 +14,13 @@
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
+/* Background color and text color styling */
 body{
     background: #00004B;
     color: #8046B0;
 }
 
+/* Styling for the header at the top of the page */
 header{
     display: flex;
     justify-content: space-between;
@@ -23,6 +28,7 @@ header{
     padding: 10px;
 }
 
+/* Styling for the main tag on the page */
 main{
     display: flex;
     flex-direction: column;
@@ -34,10 +40,12 @@ main{
     padding-top: 10vh;
 }
 
+/* General styling for every h1 element */
 h1{
     margin: 5px 0px;
 }
 
+/* General styling for all buttons */
 button{
     padding: 2px;
     margin: 2px 0;
@@ -48,14 +56,18 @@ button{
     border: #9e57d8 solid 1px;
 }
 
+/* Sets the width of the scoreboard to be 100% */
 ol{
     width:100%;
 }
 
+/* When the highscores load, starting with the first element 
+the background color will alternate */
 li:nth-child(odd){
     background-color: #32328b;
 }
 
+/* Styles the content-area section */
 .content-container{
     display: flex;
     flex-direction: column;
@@ -63,20 +75,25 @@ li:nth-child(odd){
     width:100%;
 }
 
+/* Styles the start quiz button on the landing page */
 #quiz-button{
     padding: 5px;
     margin: 10px;
 }
 
+/* Styling for the submit button on the initials page */
 #submit-button{
     margin: 0px 10px;
 }
 
+/* Styling for the initials input textbox */
 #initials-input{
     display: var(--startBtn-display);
     margin: 10px 0px;
     font-size: 16px;
 }
+
+/* Styling for the text block that relays if the answer is correct or incorrect */
 #status-box{
     display:flex;
     justify-content: space-between;

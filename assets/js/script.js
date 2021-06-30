@@ -1,3 +1,4 @@
+// Object that holds data for question 1
 let quizQuestion1 = {
     question: "Which of the folowing is FALSE about references in C++?",
     numAnswers: 4,
@@ -7,6 +8,8 @@ let quizQuestion1 = {
     answer2: "Once a reference is created, it cannot be later made to reference another object; it cannot be reset.",
     answer3: "References cannot refer to a constant value",
 }
+
+// Object that holds data for question 2
 let quizQuestion2 = {
     question: "Which function overloads the >> operator in python?",
     numAnswers: 4,
@@ -16,6 +19,8 @@ let quizQuestion2 = {
     answer2: "rshift()",
     answer3: "None of the above",
 }
+
+// Object that holds data for question 3
 let quizQuestion3 = {
     question: "Which of these is a super class of all errors and exceptions in the Java language?",
     numAnswers: 4,
@@ -25,6 +30,8 @@ let quizQuestion3 = {
     answer2: "FileNotFoundException",
     answer3: "Catchable",
 }
+
+// Object that holds data for question 4
 let quizQuestion4 = {
     question: "Memory can be accessed in ARM systems by ______ instructions.",
     numAnswers: 4,
@@ -34,6 +41,8 @@ let quizQuestion4 = {
     answer2: "Store, arithmetic, logical",
     answer3: "Load, arithmetic, logical",
 }
+
+// Object that holds data for question 5
 let quizQuestion5 = {
     question: "Which of the folowing is not a Javascript data type?",
     numAnswers: 4,
@@ -44,13 +53,15 @@ let quizQuestion5 = {
     answer3: "Number",
 }
 
+// Variables for referencing the webpage nodes
 let headerEl = document.querySelector("#info-header");
 let contentArea = document.querySelector("#content-area");
 let statusBox = document.querySelector("#status-box");
 let mainEl = document.querySelector('main');
 let timerEl = document.querySelector("#timer");
 
-let quizDuration = 20;
+// Variables used for running the quiz
+let quizDuration = 120;
 let quizIndex = 0;
 let quizScore = 0;
 let quizComplete = false;
@@ -58,7 +69,7 @@ let quizQuestions = [quizQuestion1,quizQuestion2,quizQuestion3,quizQuestion4,qui
 let quizHighscores = [];
 let quizTimer;
 
-// Handles loading highscores from the local storage
+// Handles loading highscores from the local storage and loading the start quiz page
 function init(){
     let loadScores = JSON.parse(localStorage.getItem("scoreboard"));
     if(loadScores !== null){
@@ -67,6 +78,7 @@ function init(){
     renderLandingPage();
 }
 
+// Loads elements and text required for starting the quiz
 function renderLandingPage(){
     let summPara = document.createElement("p");
     let startQuizBtn = document.createElement("button");
@@ -83,25 +95,48 @@ function renderLandingPage(){
     contentArea.append(startQuizBtn);
 }
 
+// Renders the current quiz question using the values from the question object
+function renderQuestion(){
+    let currQuestion = quizQuestions[quizIndex];
+    mainEl.style.setProperty("--qAlignment","flex-start");
+    headerEl.textContent = currQuestion.question;
+    contentArea.textContent = "";
+
+    // Builds the multiple choice answers the user can select
+    for(let i = 0; i < currQuestion.numAnswers; i++){
+        let answeBtn = document.createElement("button");
+        answeBtn.textContent = `${i}. ${currQuestion[`answer${i}`]}`;
+        answeBtn.setAttribute("id",i);
+        answeBtn.addEventListener("click",answerSelected);
+        contentArea.append(answeBtn);
+    }
+}
+
+// Renders the elements need for the initials input page
 function renderInitialsScreen(){
+    // Initialize variables
     let containerDiv = document.createElement("div");
     let initialsInput = document.createElement("input");
     let submitBtn = document.createElement("button");
     let scoreTxt = document.createElement("p");
+    // Populate content
     mainEl.style.setProperty("--content-width","30vw");
     contentArea.textContent = "";
-    headerEl.textContent = "Enter initials your initials"
+    headerEl.textContent = "Enter your initials here";
     scoreTxt.textContent = `Your final score was ${quizScore}`;
     initialsInput.setAttribute("type","text");
     initialsInput.setAttribute("id","initials-input");
     initialsInput.setAttribute("placeholder","Enter your initials");
-    contentArea.append(scoreTxt);
-    containerDiv.append(initialsInput);
     submitBtn.textContent = "Submit";
     submitBtn.setAttribute("id","submit-button");
-    //
+    // Append elements
+    contentArea.append(scoreTxt);
+    containerDiv.append(initialsInput);
+
+    // Adds an event listener to the submit button
     submitBtn.addEventListener("click",function(event){
         event.preventDefault();
+        //If the initials value is not empty then update the array, sort it, then save the array locally
         if(initialsInput.value !== ""){
             quizHighscores.push(`${quizScore} - ${initialsInput.value}`);
             quizHighscores.sort(sortScores);
@@ -115,6 +150,7 @@ function renderInitialsScreen(){
     contentArea.append(containerDiv);
 }
 
+// Renders the highscores page
 function renderHighscores(){
     let backBtn = document.createElement("button");
     let clearBtn = document.createElement("button");
@@ -136,6 +172,17 @@ function renderHighscores(){
     statusBox.append(clearBtn);
 }
 
+// Event Listener function connected to the Start Quiz button
+// Starts the quiz timer, then loads the first question.
+function startQuiz(event){
+    event.preventDefault();
+    renderQuestion();
+    quizTimer = setInterval(quizMonitor,1000);
+}
+
+// Event Listener function that is linked to the multiple choice answers
+// When clicked will check if the answer is correct/incorrect, then update the score and status box.
+// Finally, loads the next question
 function answerSelected(event){
     event.preventDefault();
     let target = event.target;
@@ -160,30 +207,15 @@ function answerSelected(event){
 
         if(quizIndex + 1 < quizQuestions.length){
             quizIndex++;
-            loadQuestion();
+            renderQuestion();
         } else {
             quizComplete = true;
          }
     }
 }
 
-// 2. When the start quiz button is pressed the first question pops-up
-function loadQuestion(){
-    let currQuestion = quizQuestions[quizIndex];
-    mainEl.style.setProperty("--qAlignment","flex-start");
-    headerEl.textContent = currQuestion.question;
-    contentArea.textContent = "";
-    // statusBox.textContent = "";
-    for(let i = 0; i < currQuestion.numAnswers; i++){
-        let answeBtn = document.createElement("button");
-        answeBtn.textContent = `${i}. ${currQuestion[`answer${i}`]}`;
-        answeBtn.setAttribute("id",i);
-        // 3. The question should have a list of 4 answers that the user can click on
-        answeBtn.addEventListener("click",answerSelected);
-        contentArea.append(answeBtn);
-    }
-}
-
+// Event listener connected to the Go Back button on the highscores page
+// When clicked resets the quiz variables back to default values and loads the start page
 function resetQuiz(){
     quizDuration = 120;
     quizIndex = 0;
@@ -192,18 +224,20 @@ function resetQuiz(){
     renderLandingPage();
 }
 
+// Event Listener function connected to the Clear Highscores Button
+// Clears the highscores array and the local storage item
 function clearScores(){
     quizHighscores = [];
     localStorage.removeItem("scoreboard");
     renderHighscores();
 }
 
+// A time interval function that is linked to the quiz timer variable
+// The timer will tick down until either time runs out or the quiz is finished
 function quizMonitor(){
     quizDuration--;
     timerEl.textContent = `Time: ${quizDuration}`
     if(quizDuration <= 0 || quizComplete){
-        // load initials input
-        //load highscore
         contentArea.textContent = "Thanks for Playing";
         timerEl.textContent = "";
         renderInitialsScreen();
@@ -211,6 +245,7 @@ function quizMonitor(){
     }
 }
 
+// Custom sort function for sorting the highscores by score
 function sortScores(item1,item2){
     let num1 = 0;
     let num2 = 0;
@@ -229,12 +264,5 @@ function sortScores(item1,item2){
     return 0;
 }
 
-
-
-// 1. When the start quiz button is pressed the timer begins
-function startQuiz(event){
-    event.preventDefault();
-    loadQuestion();
-    quizTimer = setInterval(quizMonitor,1000);
-}
+// Initialize webpage on load
 init();
