@@ -47,9 +47,10 @@ let quizQuestion5 = {
 let headerEl = document.querySelector("#info-header");
 let contentArea = document.querySelector("#content-area");
 let statusBox = document.querySelector("#status-box");
+let mainEl = document.querySelector('main');
 let timerEl = document.querySelector("#timer");
 
-let quizDuration = 120;
+let quizDuration = 20;
 let quizIndex = 0;
 let quizScore = 0;
 let quizComplete = false;
@@ -69,35 +70,49 @@ function init(){
 function renderLandingPage(){
     let summPara = document.createElement("p");
     let startQuizBtn = document.createElement("button");
+    mainEl.style.setProperty("--qAlignment","center");
+    mainEl.style.setProperty("--content-width","50vw");
+    headerEl.textContent = "Coding Quiz Challenge";
     contentArea.textContent = "";
+    statusBox.textContent = "";
     summPara.textContent = "Try to answer the questions within the time limit.";
     startQuizBtn.textContent = "Start Quiz";
+    startQuizBtn.setAttribute("id","quiz-button");
     startQuizBtn.addEventListener("click",startQuiz);
     contentArea.append(summPara);
     contentArea.append(startQuizBtn);
 }
 
 function renderInitialsScreen(){
+    let containerDiv = document.createElement("div");
+    let initialsInput = document.createElement("input");
+    let submitBtn = document.createElement("button");
+    let scoreTxt = document.createElement("p");
+    mainEl.style.setProperty("--content-width","30vw");
     contentArea.textContent = "";
     headerEl.textContent = "Enter initials your initials"
-    let initialsInput = document.createElement("input");
+    scoreTxt.textContent = `Your final score was ${quizScore}`;
     initialsInput.setAttribute("type","text");
     initialsInput.setAttribute("id","initials-input");
     initialsInput.setAttribute("placeholder","Enter your initials");
-    contentArea.append(initialsInput);
-    let submitBtn = document.createElement("button");
+    contentArea.append(scoreTxt);
+    containerDiv.append(initialsInput);
     submitBtn.textContent = "Submit";
+    submitBtn.setAttribute("id","submit-button");
+    //
     submitBtn.addEventListener("click",function(event){
         event.preventDefault();
         if(initialsInput.value !== ""){
             quizHighscores.push(`${quizScore} - ${initialsInput.value}`);
+            quizHighscores.sort(sortScores);
             localStorage.setItem("scoreboard",JSON.stringify(quizHighscores));
             renderHighscores();
         } else {
             alert('Please enter your initials');
         }
     });
-    contentArea.append(submitBtn);
+    containerDiv.append(submitBtn);
+    contentArea.append(containerDiv);
 }
 
 function renderHighscores(){
@@ -113,9 +128,10 @@ function renderHighscores(){
         scoreboard.append(listEl);
     }
     contentArea.append(scoreboard);
-
     backBtn.textContent = 'Go Back';
     clearBtn.textContent = 'Clear Highscores';
+    backBtn.addEventListener("click",resetQuiz);
+    clearBtn.addEventListener("click",clearScores);
     statusBox.append(backBtn);
     statusBox.append(clearBtn);
 }
@@ -125,29 +141,42 @@ function answerSelected(event){
     let target = event.target;
     if(target.matches("button")){
         let elId = target.getAttribute("id");
+        let statusDuration = 1;
         if(elId === quizQuestions[quizIndex].correctAnswer){
             statusBox.textContent = `Correct`;
-            quizScore += 1;
+            quizScore += 5;
         } else {
             statusBox.textContent = `Incorrect`;
         }
+        statusBox.style.setProperty("--status-border-width","2px");
+        let statusClear = setInterval(function(){
+            statusDuration--;
+            if(statusDuration <= 0){
+                statusBox.textContent = "";
+                statusBox.style.setProperty("--status-border-width","0px");
+                clearInterval(statusClear);
+            }
+        },500);
+
         if(quizIndex + 1 < quizQuestions.length){
             quizIndex++;
             loadQuestion();
         } else {
             quizComplete = true;
-        }
+         }
     }
 }
 
-// 2. When th  e start quiz button is pressed the first question pops-up
+// 2. When the start quiz button is pressed the first question pops-up
 function loadQuestion(){
     let currQuestion = quizQuestions[quizIndex];
+    mainEl.style.setProperty("--qAlignment","flex-start");
     headerEl.textContent = currQuestion.question;
     contentArea.textContent = "";
+    // statusBox.textContent = "";
     for(let i = 0; i < currQuestion.numAnswers; i++){
         let answeBtn = document.createElement("button");
-        answeBtn.textContent = currQuestion[`answer${i}`];
+        answeBtn.textContent = `${i}. ${currQuestion[`answer${i}`]}`;
         answeBtn.setAttribute("id",i);
         // 3. The question should have a list of 4 answers that the user can click on
         answeBtn.addEventListener("click",answerSelected);
@@ -155,9 +184,23 @@ function loadQuestion(){
     }
 }
 
+function resetQuiz(){
+    quizDuration = 120;
+    quizIndex = 0;
+    quizScore = 0;
+    quizComplete = false;
+    renderLandingPage();
+}
+
+function clearScores(){
+    quizHighscores = [];
+    localStorage.removeItem("scoreboard");
+    renderHighscores();
+}
+
 function quizMonitor(){
     quizDuration--;
-    timerEl.textContent = `Timer: ${quizDuration} seconds`
+    timerEl.textContent = `Time: ${quizDuration}`
     if(quizDuration <= 0 || quizComplete){
         // load initials input
         //load highscore
@@ -168,17 +211,30 @@ function quizMonitor(){
     }
 }
 
+function sortScores(item1,item2){
+    let num1 = 0;
+    let num2 = 0;
+    item1 = item1.split("-")[0].trim();
+    item2 = item2.split("-")[0].trim();
+    num1 = Number(item1);
+    num2 = Number(item2);
+    if(num1 > num2){
+        return -1;
+    }
+    
+    if(num1 < num2){
+        return 1;
+    }
+    
+    return 0;
+}
+
+
+
 // 1. When the start quiz button is pressed the timer begins
 function startQuiz(event){
     event.preventDefault();
     loadQuestion();
     quizTimer = setInterval(quizMonitor,1000);
 }
-
-// 4. when the user selects an answer text, should display at the bottom letting them know if they got it right or wrong
-    // A button is clicked
-    // Check if the selected answer is correct
-    // If it is then 
-// 5. The quiz ends either when the user answers all the questions or the timer runs out
-// 6. When the quiz completes the user is asked to enter there initials
 init();
